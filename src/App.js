@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
+
 import './App.css';
 
 const API = 'http://api.openweathermap.org/data/2.5/forecast?q='
-const location = 'Miami';
+const location = 'london';
 const unit = '&units=metric';
 const KEY = '?id=524901&APPID=3de18c1ff4b1ba20a7a46d1a4b524e00';
+
 
 class App extends Component {
 
@@ -22,19 +24,21 @@ class App extends Component {
   }
  
   // TODO: find a way to have ony one fetch() function 
-  componentDidMount() {
-    // this.setState({ isLoading: true });
-    fetch(API + location + unit + KEY)
-      .then(response => {
-        if (response.ok) {
-          return response.json()
-        } else {
-          throw new Error('something went wrong...')
-        }
-      })
-      .then(data => this.setState({ data: data, city: data.city, lists: data.list }))
-      .catch(error => this.setState({ error, isLoading: false }))
-  }
+  // componentDidMount() {
+
+  //   // this.handleSubmit()
+  //   // this.setState({ isLoading: true });
+  //   fetch(API + location  + unit + KEY)
+  //     .then(response => {
+  //       if (response.ok) {
+  //         return response.json()
+  //       } else {
+  //         throw new Error('something went wrong...')
+  //       }
+  //     })
+  //     .then(data => this.setState({ data: data, city: data.city, lists: data.list }))
+  //     .catch(error => this.setState({ error, isLoading: false }))
+  // }
 
   handleSubmit = (event) => {
     event.preventDefault()
@@ -54,11 +58,19 @@ class App extends Component {
     this.setState({ location: event.target.value })
   }
 
+  handleClick = () => {
+    window.location.reload(true)
+  }
+
   render() {
-    const { data, city, lists, isLoading, error } = this.state;
-    console.log(this.state)
+    const { city, lists, isLoading, error } = this.state;
     if (error) {
-      return <h1>{error.message}</h1>
+      return (
+        <div>
+          <h1>{error.message}</h1>
+          <button onClick={this.handleClick}>refresh</button>
+        </div>
+      )
     }
 
     if (isLoading) {
@@ -67,19 +79,29 @@ class App extends Component {
 
     return (
       <div>
-        <h1>{city.name} {city.country} population: {city.population}</h1>
+        {this.state.location ? 
+          <h1>Try a new search</h1> 
+          : <h1>Please enter the name of the city</h1>}
         <form onSubmit={this.handleSubmit}>
           <input type='text' onChange={this.handleChange}/>
           <input type='submit' value='submit'/>
         </form>
-        <ul>{
-          lists.map(list => {
-            let celsius = list.main.temp - 273;
-            let tempreture = Math.round(celsius)
-            return <li key={list.main.temp}>{tempreture}</li>
-          })
+        {this.state.location &&(
+          <div>
+            <h1>{city.name} {city.country} population: {city.population}</h1>
+            <ul>{
+              lists.map(list => {
+                let celsius = list.main.temp - 273;
+                let tempreture = Math.round(celsius)
+                return <li key={list.main.temp}>{tempreture}</li>
+              })
+            }
+            </ul>
+          </div>
+
+        )
         }
-        </ul>
+
       </div>
 
     );
